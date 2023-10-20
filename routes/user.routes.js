@@ -3,11 +3,19 @@ module.exports = (app) => {
   const bodyParser = require('body-parser');
   app.use(bodyParser.urlencoded({ extended: false }));
 
-  app.get("/getUserByName/:username", User.findUserByName);
-  app.get("/getUserById/:id", User.findUserById);
-  app.get("/getUsers", User.findUsers);
-  app.post("/addUser", User.createNewUser);
-  app.put("/editUserByName/:username", User.updateByName);
-  app.put("/editUserById/:id", User.updateById);
-  app.delete("/deleteUserById/:id", User.deleteUserById);
+  app.get("/status/", User.pong); //GET /status/ -> Responde simplemente pong.
+  app.get("/directories/:id", User.findUserById); //GET /directories/{id} -> Obtener un objeto.
+  app.get("/directories/", User.findUsers); //GET /directories/ -> Listado de objetos.
+  app.post("/directories/", User.createNewUser); //POST /directories/ -> Creación de objeto.
+  app.put("/directories/:id", User.updateById); //PUT /directories/{id} -> Actualizar un objeto.
+  app.patch("/directories/:id", User.updatenameById); //PUT /directories/{id} -> Actualizar parcialmente un objeto.
+  app.delete("/directories/:id", User.deleteUserById); //DELETE /directories/{id} -> Eliminar un objeto.
 };
+
+
+
+
+
+
+
+
