@@ -23,8 +23,7 @@ exports.createNewUser = (req, res) => {
 
   const userData = new User({
     username: req.body.username,
-    email: req.body.email,
-    password: req.body.password
+    email: req.body.email
   });
   userData
     .save()
