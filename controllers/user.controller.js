@@ -37,7 +37,7 @@ exports.createNewUser = (req, res) => {
     });
 };
 
-// Controlador
+
 exports.findUserById = (req, res) => {
   const id = req.params.id; // Obtener el parámetro de la URL
   User.findById(id) // Utilizar el método findById de Mongoose para buscar el usuario por su ID
@@ -54,7 +54,6 @@ exports.findUserById = (req, res) => {
     });
 };
 
-// Controlador
 exports.updateById = (req, res) => {
   const id = req.params.id; // Obtener el parámetro de la URL
   const newData = req.body; // Obtener los datos actualizados del cuerpo de la solicitud
@@ -73,7 +72,7 @@ exports.updateById = (req, res) => {
     });
 };
 
-// Controlador
+
 exports.deleteUserById = (req, res) => {
   const id = req.params.id; // Obtener el parámetro de la URL
 
@@ -87,6 +86,24 @@ exports.deleteUserById = (req, res) => {
     .catch((err) => {
       res.status(500).send({
         message: err.message || "Some error occurred while deleting the user",
+      });
+    });
+};
+
+exports.updatenameById = (req, res) => {
+  const id = req.params.id; // Obtener el parámetro de la URL
+  const newData = req.body; // Obtener los datos actualizados del cuerpo de la solicitud
+
+  User.findByIdAndUpdate(id, newData, { new: true }) // Utilizar el método findByIdAndUpdate de Mongoose para buscar y actualizar parcialmente el usuario por su ID
+    .then((updatedUser) => {
+      if (!updatedUser) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      res.send(updatedUser);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while updating the user",
       });
     });
 };

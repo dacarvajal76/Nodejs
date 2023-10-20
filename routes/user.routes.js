@@ -12,7 +12,7 @@ module.exports = (app) => {
   
   app.put("/directories/:id", User.updateById); //PUT /directories/{id} -> Actualizar un objeto.
   app.delete("/directories/:id", User.deleteUserById); //DELETE /directories/{id} -> Eliminar un objeto.
-  // app.patch("/directories/:id", User.updatenameById); //PUT /directories/{id} -> Actualizar parcialmente un objeto.
+  app.patch("/directories/:id", User.updatenameById); //PUT /directories/{id} -> Actualizar parcialmente un objeto.
 
 };
 
