@@ -1,7 +1,9 @@
-
 var User = require("../models/user.model");
 
-
+exports.pong = (req,res) => {
+  res.send("PONG")
+}
+ 
 exports.findUsers = (req, res) => {
   User.find()
     .then((data) => {
@@ -14,6 +16,7 @@ exports.findUsers = (req, res) => {
       });
     });
 };
+
 
 
 exports.createNewUser = (req, res) => {
