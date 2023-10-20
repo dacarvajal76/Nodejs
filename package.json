@@ -1,0 +1,23 @@
+{
+  "name": "distribuidos",
+  "version": "1.0.0",
+  "description": "proyecto de distribuidos practica 2c",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dacarvajal76/distribuidos.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dacarvajal76/distribuidos/issues"
+  },
+  "homepage": "https://github.com/dacarvajal76/distribuidos#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "save": "^2.9.0"
+  }
+}
