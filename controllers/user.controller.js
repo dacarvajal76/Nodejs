@@ -20,10 +20,9 @@ exports.findUsers = (req, res) => {
 
 
 exports.createNewUser = (req, res) => {
-
   const userData = new User({
-    username: req.body.username,
-    email: req.body.email
+    name: req.body.name,
+    emails: req.body.emails
   });
   userData
     .save()
@@ -41,7 +40,6 @@ exports.createNewUser = (req, res) => {
 // Controlador
 exports.findUserById = (req, res) => {
   const id = req.params.id; // Obtener el parámetro de la URL
-
   User.findById(id) // Utilizar el método findById de Mongoose para buscar el usuario por su ID
     .then((data) => {
       if (!data) {

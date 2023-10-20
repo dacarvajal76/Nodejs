@@ -4,7 +4,7 @@ module.exports = (app) => {
   app.use(bodyParser.urlencoded({ extended: false }));
 
  
-  //app.get("/directories/:id", User.findUserById); //GET /directories/{id} -> Obtener un objeto.  
+  app.get("/directories/:id", User.findUserById); //GET /directories/{id} -> Obtener un objeto.  
   app.post("/directories/", User.createNewUser); //POST /directories/ -> Creación de objeto.
 
   app.get("/status/", User.pong); //GET /status/ -> Responde simplemente pong.
