@@ -7,7 +7,7 @@ require('./config/db.config');
 require('./routes/user.routes.js')(app);
 
 app.get('/', (req, res) => {
-    res.send('This is a sample Rest CRUD API project using Node.js, Express, Pug,  MongoDb for database and Mocha & Chai for testing')
+    res.send('Este es el servidor de distribuidos, si se prueba usando postman no se debe usar RAW en el body, se debe usar x-www-form-urlencoded, las ID de objetos van directamente despues del slash')
   })
 
 app.listen(port, () => {
