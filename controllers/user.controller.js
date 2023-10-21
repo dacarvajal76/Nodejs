@@ -4,48 +4,48 @@ exports.pong = (req,res) => {
   res.send("PONG")
 }
  
+
+
+
+
 // Controlador
-exports.findUsers = (req, res) => {
+exports.findUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Obtener el número de página de la consulta (por defecto es 1)
-  const limit = parseInt(req.query.limit) || 10; // Obtener el límite de elementos por página de la consulta (por defecto es 10)
+  const limit = 1; // Mostrar solo un usuario por página
 
-  // Calcular el índice de inicio y fin para la paginación
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
+  try {
+    // Calcular el índice de inicio para la paginación
+    const startIndex = (page - 1) * limit;
 
-  // Definir los enlaces a la página siguiente y previa
-  const baseUrl = req.protocol + "://" + req.get("host") + req.originalUrl.split("?")[0]; // Obtener la URL base sin los parámetros de consulta
-  const totalItems = User.countDocuments(); // Obtener el número total de objetos
-  const totalPages = Math.ceil(totalItems / limit);
+    // Ejecutar la consulta para obtener el usuario
+    const [data, totalItems] = await Promise.all([
+      User.find().skip(startIndex).limit(limit).lean().select({ name: 1, emails: 1 }),
+      User.countDocuments()
+    ]);
 
-  const pagination = {
-    totalItems: totalItems,
-    totalPages: totalPages,
-    currentPage: page,
-  };
+    // Calcular el número total de páginas
+    const totalPages = Math.ceil(totalItems / limit);
 
-  // Ejecutar la consulta para obtener los objetos
-  User.find()
-    .skip(startIndex)
-    .limit(limit)
-    .then((data) => {
-      // Construir el objeto de respuesta con el formato deseado
-      const response = {
-        count: data.length,
-        next: page < totalPages ? `${baseUrl}?page=${page + 1}&limit=${limit}` : null,
-        previous: page > 1 ? `${baseUrl}?page=${page - 1}&limit=${limit}` : null,
-        results: data,
-      };
+    // Definir los enlaces a la página siguiente y previa
+    const baseUrl = req.protocol + "://" + req.get("host") + req.originalUrl.split("?")[0]; // Obtener la URL base sin los parámetros de consulta
+    const nextPage = page < totalPages ? page + 1 : null;
+    const previousPage = page > 1 ? page - 1 : null;
 
-      res.send(response);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
+    // Construir el objeto de respuesta con el formato deseado
+    const response = {
+      count: totalPages,
+      next: nextPage ? `${baseUrl}?page=${nextPage}` : null,
+      previous: previousPage ? `${baseUrl}?page=${previousPage}` : null,
+      results: data,
+    };
+
+    res.send(response);
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Some error occurred while retrieving Users.",
     });
+  }
 };
-
 
 exports.createNewUser = (req, res) => {
   const userData = new User({
