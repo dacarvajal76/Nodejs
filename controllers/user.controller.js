@@ -11,13 +11,13 @@ exports.pong = (req,res) => {
 // Controlador
 exports.findUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Obtener el número de página de la consulta (por defecto es 1)
-  const limit = 1; // Mostrar solo un usuario por página
+  const limit = 5; // Mostrar 5 usuarios por página
 
   try {
     // Calcular el índice de inicio para la paginación
     const startIndex = (page - 1) * limit;
 
-    // Ejecutar la consulta para obtener el usuario
+    // Ejecutar la consulta para obtener los usuarios
     const [data, totalItems] = await Promise.all([
       User.find().skip(startIndex).limit(limit).lean().select({ name: 1, emails: 1 }),
       User.countDocuments()
@@ -33,7 +33,7 @@ exports.findUsers = async (req, res) => {
 
     // Construir el objeto de respuesta con el formato deseado
     const response = {
-      count: totalPages,
+      count: totalItems,
       next: nextPage ? `${baseUrl}?page=${nextPage}` : null,
       previous: previousPage ? `${baseUrl}?page=${previousPage}` : null,
       results: data,
