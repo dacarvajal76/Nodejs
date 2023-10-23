@@ -33,13 +33,12 @@ exports.findUsers = async (req, res) => {
 
     // Construir el objeto de respuesta con el formato deseado
     const response = {
-      count: totalPages,
+      count: totalItems,
       next: nextPage ? `${baseUrl}?page=${nextPage}` : null,
       previous: previousPage ? `${baseUrl}?page=${previousPage}` : null,
-      results: JSON.stringify(JSON.parse(data), null, 2),
+      results: data,
     };
-
-    res.send(response);
+    res.type('json').send(JSON.stringify(response, null, 2) + '\n');
   } catch (err) {
     res.status(500).send({
       message: err.message || "Some error occurred while retrieving Users.",
@@ -68,12 +67,12 @@ exports.createNewUser = (req, res) => {
 
 exports.findUserById = (req, res) => {
   const id = req.params.id; // Obtener el parámetro de la URL
-  User.findById(id) // Utilizar el método findById de Mongoose para buscar el usuario por su ID
+  User.findById(id).select({ name: 1, emails: 1 }) // Utilizar el método findById de Mongoose para buscar el usuario por su ID
     .then((data) => {
       if (!data) {
         return res.status(404).send({ message: "User not found" });
       }
-      res.send(data);
+      res.type('json').send(JSON.stringify(data, null, 2) + '\n');;
     })
     .catch((err) => {
       res.status(500).send({
