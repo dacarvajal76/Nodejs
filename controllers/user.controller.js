@@ -36,7 +36,7 @@ exports.findUsers = async (req, res) => {
       count: totalPages,
       next: nextPage ? `${baseUrl}?page=${nextPage}` : null,
       previous: previousPage ? `${baseUrl}?page=${previousPage}` : null,
-      results: JSON.stringify(JSON.parse(data), null, 2);,
+      results: JSON.stringify(JSON.parse(data), null, 2),
     };
 
     res.send(response);
