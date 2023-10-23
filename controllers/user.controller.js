@@ -33,7 +33,7 @@ exports.findUsers = async (req, res) => {
 
     // Construir el objeto de respuesta con el formato deseado
     const response = {
-      count: totalItems,
+      count: totalPages,
       next: nextPage ? `${baseUrl}?page=${nextPage}` : null,
       previous: previousPage ? `${baseUrl}?page=${previousPage}` : null,
       results: data,
