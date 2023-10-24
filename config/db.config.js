@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
 // uri from mongo atlas cloud db
-var uri = "mongodb://localhost:27017/todo_express"
+var uri = "mongodb://mongo:27017"
 
 // Declare a variable named option and assign optional settings
 const options = {
