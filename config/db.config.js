@@ -10,7 +10,7 @@ const options = {
     useUnifiedTopology: true
 };
 
-// Connect MongoDB Atlas using mongoose connect method
+// Connect MongoDB Local using mongoose connect method
 mongoose.connect(uri, options).then(() => {
     console.log("Database connection established!");
 },
