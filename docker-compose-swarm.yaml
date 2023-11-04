@@ -3,9 +3,11 @@ services:
   app:
     container_name: web-app
     volumes:
-      - .:/app
+      - type: bind
+          	  source: "/data/gv0/vols/aitor_node_web"
+          	  target: "/app"
     restart: always
-    build: .
+    image: aitor06/web-server-node
     ports:
       - '3000:3000'
     links:
