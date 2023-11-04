@@ -4,8 +4,8 @@ services:
     container_name: web-app
     volumes:
       - type: bind
-          	  source: "/data/gv0/vols/aitor_node_web"
-          	  target: "/app"
+          source: "/data/gv0/vols/aitor_node_web"
+          target: "/app"
     restart: always
     image: aitor06/web-server-node
     ports:
