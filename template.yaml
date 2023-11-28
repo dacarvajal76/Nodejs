@@ -1,101 +1,133 @@
-- apiVersion: apps.openshift.io/v1
-    kind: DeploymentConfig
-    metadata:
-      name: '${APP_NAME}-mongodb'
-    spec:
-      replicas: 1
-      selector:
-        name: ${APP_NAME}-mongodb
-      strategy:
-        type: Recreate
-      template:
+kind: Template
+apiVersion: v1
+metadata:
+  name: cn-p2-simple-ws-template
+  annotations:
+    description: >-
+      Platilla de despliegue para cn-p2-simple-ws
+    tags: "dajngo,python"
+    openshift.io/documentation-url: "https://gitlab.com/rjrodrig/cn-p2-simple-ws"
+    openshift.io/suport-url: "https://gitlab.com/rjrodrig/cn-p2-simple-ws"
+
+parameters:
+  - name: APP_NAME
+    description: Nombre de applicación (Prefijo de todos los objetos).
+    required: true
+  
+  - name: DB_NAME
+    description: Nombre de la base de datos.
+    value: cnp2simple
+
+  - name: DOMAIN_NAME
+    description: Nombre de dominio para la publicación de la ruta.
+    required: true
+
+  - name: PROJECT_NAME
+    description: Nombre de projecto
+    required: true
+
+labels:
+  app: "${APP_NAME}"
+
+objects:
+    - apiVersion: apps.openshift.io/v1
+        kind: DeploymentConfig
         metadata:
-          labels:
-            name: "${APP_NAME}-mongodb"
+          name: '${APP_NAME}-mongodb'
         spec:
-          containers:
-          - env:
-            - name: MONGODB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: "${APP_NAME}-keys"
-                  key: db_usr
-            - name: MONGODB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: "${APP_NAME}-keys"
-                  key: db_pwd
-            - name: MONGODB_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: "${APP_NAME}-keys"
-                  key: db_name
-            image: 'mongo:4-focal'
-            imagePullPolicy: Always
-            name: mongodb
-            ports:
-            - containerPort: 27017
-              protocol: TCP
-            resources:
-              limits:
-                memory: "1G"
-              requests:
-                memory: "1G"
-            volumeMounts:
-            - mountPath: /data/db
-              name: mongodb-data
-              subPath: mongodb-data
-            restartPolicy: Always
-            securityContext:
-              supplementalGroups:
-              - 5688
-          volumes:
-          - name: mongodb-data
-            persistentVolumeClaim:
-              claimName: "data"
-          test: false
-          triggers:
-          - imageChangeParams:
-              automatic: true
-              containerNames:
-              - mongodb
-              from:
-                kind: ImageStreamTag
+          replicas: 1
+          selector:
+            name: ${APP_NAME}-mongodb
+          strategy:
+            type: Recreate
+          template:
+            metadata:
+              labels:
+                name: "${APP_NAME}-mongodb"
+            spec:
+              containers:
+              - env:
+                - name: MONGODB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-keys"
+                      key: db_usr
+                - name: MONGODB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-keys"
+                      key: db_pwd
+                - name: MONGODB_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: "${APP_NAME}-keys"
+                      key: db_name
+                image: 'mongo:4-focal'
+                imagePullPolicy: Always
                 name: mongodb
-                namespace: openshift
-              lastTriggeredImage: ''
-            type: ImageChange
-          - type: ConfigChange
-- apiVersion: v1
-  kind: Service
-  metadata:
-    name: mongodb
-  spec:
-    selector:
-      app: mongodb
-    ports:
-    - protocol: TCP
-      port: 27017
-      targetPort: 27017
-- apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: node-web
-  spec:
-    replicas: 1
-    selector:
-      matchLabels:
-        app: node-web
-    template:
+                ports:
+                - containerPort: 27017
+                  protocol: TCP
+                resources:
+                  limits:
+                    memory: "1G"
+                  requests:
+                    memory: "1G"
+                volumeMounts:
+                - mountPath: /data/db
+                  name: mongodb-data
+                  subPath: mongodb-data
+                restartPolicy: Always
+                securityContext:
+                  supplementalGroups:
+                  - 5688
+              volumes:
+              - name: mongodb-data
+                persistentVolumeClaim:
+                  claimName: "data"
+              test: false
+              triggers:
+              - imageChangeParams:
+                  automatic: true
+                  containerNames:
+                  - mongodb
+                  from:
+                    kind: ImageStreamTag
+                    name: mongodb
+                    namespace: openshift
+                  lastTriggeredImage: ''
+                type: ImageChange
+              - type: ConfigChange
+    - apiVersion: v1
+      kind: Service
       metadata:
-        labels:
-          app: node-web
+        name: mongodb
       spec:
-        containers:
-        - name: node-web
-          image: aitor06/web-server-node
-          ports:
-          - containerPort: 3000
-          env:
-          - name: MONGO_DB_URL
-            value: mongodb://admin:password@mongodb:27017/dbname
+        selector:
+          app: mongodb
+        ports:
+        - protocol: TCP
+          port: 27017
+          targetPort: 27017
+    - apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: node-web
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: node-web
+        template:
+          metadata:
+            labels:
+              app: node-web
+          spec:
+            containers:
+            - name: node-web
+              image: aitor06/web-server-node
+              ports:
+              - containerPort: 3000
+              env:
+              - name: DB
+                value: ${APP_NAME}-${DB_NAME}-${PROJECT_NAME}.svc
