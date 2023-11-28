@@ -10,7 +10,7 @@ parameters:
   
   - name: DB_NAME
     description: Nombre de la base de datos.
-    value: cnp2simple
+    value: db
 
   - name: DOMAIN_NAME
     description: Nombre de dominio para la publicación de la ruta.
