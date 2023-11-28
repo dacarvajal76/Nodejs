@@ -2,12 +2,6 @@ kind: Template
 apiVersion: v1
 metadata:
   name: cn-p2-simple-ws-template
-  annotations:
-    description: >-
-      Platilla de despliegue para cn-p2-simple-ws
-    tags: "dajngo,python"
-    openshift.io/documentation-url: "https://gitlab.com/rjrodrig/cn-p2-simple-ws"
-    openshift.io/suport-url: "https://gitlab.com/rjrodrig/cn-p2-simple-ws"
 
 parameters:
   - name: APP_NAME
@@ -47,16 +41,6 @@ objects:
             spec:
               containers:
               - env:
-                - name: MONGODB_USER
-                  valueFrom:
-                    secretKeyRef:
-                      name: "${APP_NAME}-keys"
-                      key: db_usr
-                - name: MONGODB_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: "${APP_NAME}-keys"
-                      key: db_pwd
                 - name: MONGODB_DATABASE
                   valueFrom:
                     secretKeyRef:
