@@ -1,117 +1,188 @@
+apiVersion: template.openshift.io/v1
 kind: Template
-apiVersion: v1
-metadata:
-  name: cn-p2-simple-ws-template
-
-parameters:
-  - name: APP_NAME
-    description: Nombre de applicación (Prefijo de todos los objetos).
-    required: true
-  
-  - name: DB_NAME
-    description: Nombre de la base de datos.
-    value: db
-
-  - name: DOMAIN_NAME
-    description: Nombre de dominio para la publicación de la ruta.
-    required: true
-
-  - name: PROJECT_NAME
-    description: Nombre de projecto
-    required: true
-
 labels:
-  app: "${APP_NAME}"
-
+  app: '${APP_NAME}'
+metadata:
+  annotations:
+    description: 'Platilla '
+    tags: nodejs
+  creationTimestamp: '2023-11-28T12:33:24Z'
+  name: nodeapp
+  namespace: pj-aaparrilla-19
+  resourceVersion: '524234688'
+  selfLink: /apis/template.openshift.io/v1/namespaces/pj-aaparrilla-19/templates/nodeapp
+  uid: 529e6e69-8dea-11ee-915d-3ee421e83a82
 objects:
-    - apiVersion: apps.openshift.io/v1
-        kind: DeploymentConfig
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: '${APP_NAME}-keys'
+    stringData:
+      db_name: '${DB_NAME}'
+      db_pwd: '${DB_PWD}'
+      db_usr: '${DB_USR}'
+    type: Opaque
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: '${APP_NAME}-appserver'
+    spec:
+      ports:
+        - name: appserver
+          port: 3000
+          targetPort: 3000
+      selector:
+        name: '${APP_NAME}-appserver'
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      labels:
+        app: '${APP_NAME}-appserver'
+      name: '${APP_NAME}-appserver'
+    spec:
+      host: '${DOMAIN_NAME}'
+      port:
+        targetPort: appserver
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: '${APP_NAME}-appserver'
+        weight: 100
+      wildcardPolicy: None
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: '${APP_NAME}-mongodb'
+    spec:
+      ports:
+        - name: mongodb
+          port: 27017
+          protocol: TCP
+          targetPort: 27017
+      selector:
+        name: mongodb
+      type: ClusterIP
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: '${APP_NAME}-mongodb'
+    spec:
+      replicas: 1
+      selector:
+        name: '${APP_NAME}-mongodb'
+      strategy:
+        type: Recreate
+      template:
         metadata:
-          name: '${APP_NAME}-mongodb'
+          labels:
+            name: '${APP_NAME}-mongodb'
         spec:
-          replicas: 1
-          selector:
-            name: ${APP_NAME}-mongodb
-          strategy:
-            type: Recreate
-          template:
-            metadata:
-              labels:
-                name: "${APP_NAME}-mongodb"
-            spec:
-              containers:
-              - env:
+          containers:
+            - env:
+                - name: MONGODB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: db_usr
+                      name: '${APP_NAME}-keys'
+                - name: MONGODB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: db_pwd
+                      name: '${APP_NAME}-keys'
                 - name: MONGODB_DATABASE
                   valueFrom:
                     secretKeyRef:
-                      name: "${APP_NAME}-keys"
                       key: db_name
-                image: 'mongo:4-focal'
-                imagePullPolicy: Always
-                name: mongodb
-                ports:
+                      name: '${APP_NAME}-keys'
+              image: 'mongo:4-focal'
+              imagePullPolicy: Always
+              name: mongodb
+              ports:
                 - containerPort: 27017
                   protocol: TCP
-                resources:
-                  limits:
-                    memory: "1G"
-                  requests:
-                    memory: "1G"
-                volumeMounts:
+              resources:
+                limits:
+                  memory: 1G
+                requests:
+                  memory: 1G
+              restartPolicy: Always
+              securityContext:
+                supplementalGroups:
+                  - 5688
+              volumeMounts:
                 - mountPath: /data/db
                   name: mongodb-data
                   subPath: mongodb-data
-                restartPolicy: Always
-                securityContext:
-                  supplementalGroups:
-                  - 5688
-              volumes:
-              - name: mongodb-data
-                persistentVolumeClaim:
-                  claimName: "data"
-              test: false
-              triggers:
-              - imageChangeParams:
-                  automatic: true
-                  containerNames:
+          test: false
+          triggers:
+            - imageChangeParams:
+                automatic: true
+                containerNames:
                   - mongodb
-                  from:
-                    kind: ImageStreamTag
-                    name: mongodb
-                    namespace: openshift
-                  lastTriggeredImage: ''
-                type: ImageChange
-              - type: ConfigChange
-    - apiVersion: v1
-      kind: Service
-      metadata:
-        name: mongodb
-      spec:
-        selector:
-          app: mongodb
-        ports:
-        - protocol: TCP
-          port: 27017
-          targetPort: 27017
-    - apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: node-web
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: node-web
-        template:
-          metadata:
-            labels:
-              app: node-web
-          spec:
-            containers:
-            - name: node-web
-              image: aitor06/web-server-node
-              ports:
-              - containerPort: 3000
+                from:
+                  kind: ImageStreamTag
+                  name: mongodb
+                  namespace: openshift
+                lastTriggeredImage: ''
+              type: ImageChange
+            - type: ConfigChange
+          volumes:
+            - name: mongodb-data
+              persistentVolumeClaim:
+                claimName: data
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: '${APP_NAME}-appserver'
+    spec:
+      replicas: 1
+      selector:
+        name: '${APP_NAME}-appserver'
+      template:
+        metadata:
+          labels:
+            app: '${APP_NAME}-appserver'
+            name: '${APP_NAME}-appserver'
+        spec:
+          containers:
+            - args:
+                - server.js
               env:
-              - name: DB
-                value: ${APP_NAME}-${DB_NAME}-${PROJECT_NAME}.svc
+                - name: PORT
+                  value: '3000'
+                - name: DB
+                  value: '${APP_NAME}-${DB_NAME}-${PROJECT_NAME}.svc'
+              image: aitor06/web-server-node
+              imagePullPolicy: Always
+              name: appserver
+              ports:
+                - containerPort: 3000
+                  protocol: TCP
+              resources:
+                limits:
+                  memory: 1G
+                requests:
+                  memory: 1G
+              restartPolicy: Always
+      test: false
+parameters:
+  - description: App name.
+    name: APP_NAME
+    required: true
+  - description: Nombre de la base de datos.
+    name: DB_NAME
+    value: mongodb
+  - description: Nombre de usario para conexión a la base de datos.
+    name: DB_USR
+    value: mongo
+  - description: Password de usuario para conexión a la base de datos.
+    name: DB_PWD
+    required: true
+  - description: Nombre de dominio para la publicación de la ruta.
+    name: DOMAIN_NAME
+    required: true
+  - description: Nombre de projecto
+    name: PROJECT_NAME
+    required: true
