@@ -154,7 +154,7 @@ objects:
                   value: '3000'
                 - name: DB
                   value: '${APP_NAME}-${DB_NAME}-${PROJECT_NAME}.svc'
-              image: aitor06/web-server-node
+              image: aitor06/web-server-node:version2
               imagePullPolicy: Always
               name: appserver
               ports:
