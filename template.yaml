@@ -62,7 +62,7 @@ objects:
           protocol: TCP
           targetPort: 27017
       selector:
-        name: mongodb
+        name: '${APP_NAME}-mongodb'
       type: ClusterIP
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
