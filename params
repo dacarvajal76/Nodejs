@@ -1,0 +1,7 @@
+
+APP_NAME="api"
+DB_NAME="Mongodb"
+DB_USR="mongo"
+DB_PWD="mongo"
+DOMAIN_NAME="aaparrilla-19.okd.dev.ucab.edu.ve"
+PROJECT_NAME="pj-aaparrilla-19"
