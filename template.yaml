@@ -153,7 +153,7 @@ objects:
                 - name: PORT
                   value: '3000'
                 - name: DB
-                  value: '${APP_NAME}-${DB_NAME}.${PROJECT_NAME}.svc.cluster.local'
+                  value: 'mongodb://${APP_NAME}-${DB_NAME}.${PROJECT_NAME}.svc.cluster.local'
               image: aitor06/web-server-node:version2
               imagePullPolicy: Always
               name: appserver
